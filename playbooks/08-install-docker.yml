@@ -1,0 +1,23 @@
+---
+- name: Install Docker
+  hosts: all
+  become: yes
+  tasks:
+    - name: Install Docker (Debian)
+      ansible.builtin.apt:
+        name: docker.io
+        state: present
+        update_cache: yes
+      when: ansible_os_family == "Debian"
+
+    - name: Install Docker (RedHat)
+      ansible.builtin.dnf:
+        name: docker
+        state: present
+      when: ansible_os_family == "RedHat"
+
+    - name: Ensure Docker is started
+      ansible.builtin.service:
+        name: docker
+        state: started
+        enabled: yes

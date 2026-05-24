@@ -1,0 +1,50 @@
+services:
+  rundeck:
+    build:
+      context: .
+      dockerfile: Dockerfile.rundeck
+    ports:
+      - "4440:4440"
+    environment:
+      RUNDECK_GRAILS_URL: ${RUNDECK_GRAILS_URL}
+    volumes:
+      - ./playbooks:/playbooks
+      - ./inventory.yml:/inventory.yml
+    restart: unless-stopped
+
+  target-ubuntu:
+    image: ubuntu:24.04
+    environment:
+      - ROOT_PASS=${TARGET_ROOT_PASSWORD}
+    command: >
+      /bin/bash -c "apt-get update && 
+      DEBIAN_FRONTEND=noninteractive apt-get install -y openssh-server python3 && 
+      mkdir -p /var/run/sshd && 
+      echo \"root:$$ROOT_PASS\" | chpasswd && 
+      echo \"PermitRootLogin yes\" >> /etc/ssh/sshd_config && 
+      /usr/sbin/sshd -D"
+    restart: unless-stopped
+
+  target-almalinux:
+    image: almalinux:9
+    environment:
+      - ROOT_PASS=${TARGET_ROOT_PASSWORD}
+    command: >
+      /bin/bash -c "dnf install -y openssh-server python3 && 
+      ssh-keygen -A && 
+      echo \"root:$$ROOT_PASS\" | chpasswd && 
+      echo \"PermitRootLogin yes\" >> /etc/ssh/sshd_config && 
+      /usr/sbin/sshd -D"
+    restart: unless-stopped
+
+  target-rockylinux:
+    image: rockylinux:9
+    environment:
+      - ROOT_PASS=${TARGET_ROOT_PASSWORD}
+    command: >
+      /bin/bash -c "dnf install -y openssh-server python3 && 
+      ssh-keygen -A && 
+      echo \"root:$$ROOT_PASS\" | chpasswd && 
+      echo \"PermitRootLogin yes\" >> /etc/ssh/sshd_config && 
+      /usr/sbin/sshd -D"
+    restart: unless-stopped

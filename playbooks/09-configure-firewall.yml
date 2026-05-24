@@ -1,0 +1,34 @@
+---
+- name: Configure System Firewall
+  hosts: all
+  become: yes
+  tasks:
+    - name: Install UFW (Debian)
+      ansible.builtin.apt:
+        name: ufw
+        state: present
+      when: ansible_os_family == "Debian"
+
+    - name: Install firewalld (RedHat)
+      ansible.builtin.dnf:
+        name: firewalld
+        state: present
+      when: ansible_os_family == "RedHat"
+
+    - name: Enable SSH in UFW
+      community.general.ufw:
+        rule: allow
+        name: OpenSSH
+      when: ansible_os_family == "Debian"
+
+    - name: Enable UFW
+      community.general.ufw:
+        state: enabled
+      when: ansible_os_family == "Debian"
+
+    - name: Enable firewalld
+      ansible.builtin.service:
+        name: firewalld
+        state: started
+        enabled: yes
+      when: ansible_os_family == "RedHat"

@@ -1,0 +1,23 @@
+---
+- name: Deploy Nginx Web Server
+  hosts: all
+  become: yes
+  tasks:
+    - name: Install Nginx (Debian)
+      ansible.builtin.apt:
+        name: nginx
+        state: present
+        update_cache: yes
+      when: ansible_os_family == "Debian"
+
+    - name: Install Nginx (RedHat)
+      ansible.builtin.dnf:
+        name: nginx
+        state: present
+      when: ansible_os_family == "RedHat"
+
+    - name: Start and enable Nginx service
+      ansible.builtin.service:
+        name: nginx
+        state: started
+        enabled: yes

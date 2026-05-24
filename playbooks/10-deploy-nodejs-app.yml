@@ -1,0 +1,22 @@
+---
+- name: Deploy Node.js Environment
+  hosts: all
+  become: yes
+  tasks:
+    - name: Install Node.js (Debian)
+      ansible.builtin.apt:
+        name: nodejs
+        state: present
+        update_cache: yes
+      when: ansible_os_family == "Debian"
+
+    - name: Install Node.js (RedHat)
+      ansible.builtin.dnf:
+        name: nodejs
+        state: present
+      when: ansible_os_family == "RedHat"
+
+    - name: Install NPM
+      ansible.builtin.package:
+        name: npm
+        state: present

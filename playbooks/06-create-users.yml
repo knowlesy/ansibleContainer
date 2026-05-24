@@ -1,0 +1,17 @@
+---
+- name: Standardize User Accounts
+  hosts: all
+  become: yes
+  vars:
+    admin_users:
+      - devops
+      - secops
+  tasks:
+    - name: Ensure admin users exist
+      ansible.builtin.user:
+        name: "{{ item }}"
+        state: present
+        shell: /bin/bash
+        groups: "{{ 'sudo' if ansible_os_family == 'Debian' else 'wheel' }}"
+        append: yes
+      loop: "{{ admin_users }}"

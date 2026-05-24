@@ -1,0 +1,19 @@
+FROM rundeck/rundeck:5.2.0
+
+USER root
+
+# Install Ansible, Python, and sshpass (needed for password auth in Ansible)
+RUN apt-get update && \
+    apt-get install -y software-properties-common && \
+    apt-add-repository --yes --update ppa:ansible/ansible && \
+    apt-get install -y ansible python3-pip sshpass
+
+# Pre-configure the AnsibleLab project so it is ready on startup
+RUN mkdir -p /home/rundeck/projects/AnsibleLab/etc
+COPY project.properties /home/rundeck/projects/AnsibleLab/etc/project.properties
+RUN chown -R rundeck:root /home/rundeck/projects/AnsibleLab
+RUN echo "" >> /etc/remco/templates/rundeck-config.properties && \
+    echo "rundeck.projectsStorageType=filesystem" >> /etc/remco/templates/rundeck-config.properties
+
+# Drop back to regular rundeck user
+USER rundeck

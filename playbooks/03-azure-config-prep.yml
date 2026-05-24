@@ -1,0 +1,28 @@
+---
+- name: Prepare Azure Configuration Tools (Mock)
+  hosts: all
+  become: yes
+  tasks:
+    - name: Install dependencies (Debian/Ubuntu)
+      ansible.builtin.apt:
+        name: 
+          - curl
+          - apt-transport-https
+          - lsb-release
+          - gnupg
+        state: present
+        update_cache: yes
+      when: ansible_os_family == 'Debian'
+
+    - name: Install dependencies (RedHat/CentOS/Rocky)
+      ansible.builtin.dnf:
+        name: curl
+        state: present
+      when: ansible_os_family == 'RedHat'
+
+    - name: Download Azure CLI install script
+      ansible.builtin.get_url:
+        url: https://aka.ms/InstallAzureCLIDeb
+        dest: /tmp/install_az.sh
+        mode: '0755'
+      when: ansible_os_family == 'Debian'
